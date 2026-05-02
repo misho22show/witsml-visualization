@@ -27,17 +27,17 @@ def _parse_log_data(
     # Determine curve mnemonics ------------------------------------------
     curve_names: list[str] = []
 
-    # Try logCurveInfo first (WITSML 1.3.1 / 1.4.1)
-    for lci in log_el.findall(".//{*}logCurveInfo"):
-        mnem_el = lci.find("{*}mnemonic")
-        if mnem_el is not None and mnem_el.text:
-            curve_names.append(mnem_el.text.strip())
+    # Prefer mnemonicList (defines actual data column order in WITSML 1.4.1)
+    ml = log_el.find(".//{*}mnemonicList")
+    if ml is not None and ml.text:
+        curve_names = [c.strip() for c in ml.text.split(",")]
 
-    # Fallback: mnemonicList element
+    # Fallback: logCurveInfo (WITSML 1.3.1 / 1.4.1)
     if not curve_names:
-        ml = log_el.find("{*}mnemonicList")
-        if ml is not None and ml.text:
-            curve_names = [c.strip() for c in ml.text.split(",")]
+        for lci in log_el.findall(".//{*}logCurveInfo"):
+            mnem_el = lci.find("{*}mnemonic")
+            if mnem_el is not None and mnem_el.text:
+                curve_names.append(mnem_el.text.strip())
 
     if not curve_names:
         return [], []
