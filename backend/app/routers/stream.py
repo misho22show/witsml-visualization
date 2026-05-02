@@ -39,7 +39,7 @@ async def stream(websocket: WebSocket, well_id: str) -> None:
 
                 # Calculate delay based on playback speed
                 speed = engine.settings.playback_speed
-                base_delay = 0.1  # 100ms base interval
+                base_delay = 0.05  # 50ms base interval for smoother real-time feel
                 await asyncio.sleep(base_delay / max(speed, 0.1))
             else:
                 await asyncio.sleep(0.2)

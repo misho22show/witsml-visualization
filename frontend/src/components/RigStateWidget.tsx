@@ -102,6 +102,7 @@ export default function RigStateWidget({ history }: Props) {
             outerRadius={70}
             dataKey="value"
             paddingAngle={2}
+            isAnimationActive={false}
           >
             {data.map((d) => (
               <Cell key={d.name} fill={STATE_COLORS[d.name] ?? "#4a5568"} />

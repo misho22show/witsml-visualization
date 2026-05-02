@@ -88,7 +88,7 @@ export default function HeatmapView({ history }: Props) {
             <YAxis type="number" dataKey="depth" name="Depth" unit=" m" reversed stroke="#718096" tick={{ fontSize: 10 }} domain={['dataMin - 5', 'dataMax + 5']} />
             <ZAxis range={[20, 20]} />
             <Tooltip contentStyle={{ background: "#1a1f2e", border: "1px solid #4a5568" }} />
-            <Scatter data={torqueData} name="Torque">
+            <Scatter data={torqueData} name="Torque" isAnimationActive={false}>
               {torqueData.map((d, i) => (
                 <Cell key={i} fill={interpolateColor(d.torque, torqueRange.min, torqueRange.max)} />
               ))}
@@ -107,7 +107,7 @@ export default function HeatmapView({ history }: Props) {
             <YAxis type="number" dataKey="depth" name="Depth" unit=" m" reversed stroke="#718096" tick={{ fontSize: 10 }} domain={['dataMin - 5', 'dataMax + 5']} />
             <ZAxis range={[20, 20]} />
             <Tooltip contentStyle={{ background: "#1a1f2e", border: "1px solid #4a5568" }} />
-            <Scatter data={hookloadData} name="Hookload">
+            <Scatter data={hookloadData} name="Hookload" isAnimationActive={false}>
               {hookloadData.map((d, i) => (
                 <Cell key={i} fill={interpolateColor(d.hookload, hookloadRange.min, hookloadRange.max)} />
               ))}
@@ -126,7 +126,7 @@ export default function HeatmapView({ history }: Props) {
             <YAxis type="number" dataKey="depth" name="Depth" unit=" m" reversed stroke="#718096" tick={{ fontSize: 10 }} domain={['dataMin - 5', 'dataMax + 5']} />
             <ZAxis range={[30, 30]} />
             <Tooltip contentStyle={{ background: "#1a1f2e", border: "1px solid #4a5568" }} />
-            <Scatter data={timeAtDepth} fill="#63b3ed" name="Time at Depth" />
+            <Scatter data={timeAtDepth} fill="#63b3ed" name="Time at Depth" isAnimationActive={false} />
           </ScatterChart>
         </ResponsiveContainer>
       </div>

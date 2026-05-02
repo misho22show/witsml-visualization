@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   LineChart,
   Line,
@@ -48,7 +48,7 @@ const STATE_ICONS: Record<string, string> = {
 };
 
 export default function RealTimeDashboard({ history, latest }: Props) {
-  const chartData = history.slice(-200).map((p) => ({
+  const chartData = useMemo(() => history.slice(-500).map((p) => ({
     time: p.record.time,
     depth: p.record.measured_depth,
     hookload: p.record.hookload,
@@ -57,7 +57,7 @@ export default function RealTimeDashboard({ history, latest }: Props) {
     flow: p.record.flow_rate,
     pressure: p.record.standpipe_pressure,
     rop: p.record.rop,
-  }));
+  })), [history]);
 
   const rigState = latest?.rig_state.state ?? "—";
   const rigStateColor = STATE_COLORS[rigState] ?? "#4a5568";
@@ -171,11 +171,11 @@ export default function RealTimeDashboard({ history, latest }: Props) {
               contentStyle={{ background: "#1a1f2e", border: "1px solid #4a5568", fontSize: 11 }}
             />
             <Legend wrapperStyle={{ fontSize: 11 }} />
-            <Line yAxisId="left" type="monotone" dataKey="hookload" stroke="#38b2ac" dot={false} strokeWidth={2} name="Hookload (klbf)" />
-            <Line yAxisId="left" type="monotone" dataKey="torque" stroke="#ed8936" dot={false} strokeWidth={2} name="Torque (kft·lbf)" />
-            <Line yAxisId="right" type="monotone" dataKey="rpm" stroke="#9f7aea" dot={false} strokeWidth={1.5} name="RPM" />
-            <Line yAxisId="right" type="monotone" dataKey="flow" stroke="#63b3ed" dot={false} strokeWidth={1.5} name="Flow (gpm)" />
-            <Line yAxisId="right" type="monotone" dataKey="pressure" stroke="#fc8181" dot={false} strokeWidth={1.5} name="SPP (psi)" />
+            <Line yAxisId="left" type="monotone" dataKey="hookload" stroke="#38b2ac" dot={false} strokeWidth={2} name="Hookload (klbf)" isAnimationActive={false} />
+            <Line yAxisId="left" type="monotone" dataKey="torque" stroke="#ed8936" dot={false} strokeWidth={2} name="Torque (kft·lbf)" isAnimationActive={false} />
+            <Line yAxisId="right" type="monotone" dataKey="rpm" stroke="#9f7aea" dot={false} strokeWidth={1.5} name="RPM" isAnimationActive={false} />
+            <Line yAxisId="right" type="monotone" dataKey="flow" stroke="#63b3ed" dot={false} strokeWidth={1.5} name="Flow (gpm)" isAnimationActive={false} />
+            <Line yAxisId="right" type="monotone" dataKey="pressure" stroke="#fc8181" dot={false} strokeWidth={1.5} name="SPP (psi)" isAnimationActive={false} />
           </LineChart>
         </ResponsiveContainer>
       </div>
@@ -200,7 +200,7 @@ export default function RealTimeDashboard({ history, latest }: Props) {
                 label={{ value: "Depth (m)", angle: -90, position: "insideLeft", style: { fontSize: 10, fill: "#718096" } }}
               />
               <Tooltip contentStyle={{ background: "#1a1f2e", border: "1px solid #4a5568", fontSize: 11 }} />
-              <Line type="monotone" dataKey="depth" stroke="#48bb78" dot={false} strokeWidth={2} name="Depth (m)" />
+              <Line type="monotone" dataKey="depth" stroke="#48bb78" dot={false} strokeWidth={2} name="Depth (m)" isAnimationActive={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -222,7 +222,7 @@ export default function RealTimeDashboard({ history, latest }: Props) {
                 label={{ value: "ROP (ft/hr)", angle: -90, position: "insideLeft", style: { fontSize: 10, fill: "#718096" } }}
               />
               <Tooltip contentStyle={{ background: "#1a1f2e", border: "1px solid #4a5568", fontSize: 11 }} />
-              <Line type="monotone" dataKey="rop" stroke="#f6e05e" dot={false} strokeWidth={2} name="ROP (ft/hr)" />
+              <Line type="monotone" dataKey="rop" stroke="#f6e05e" dot={false} strokeWidth={2} name="ROP (ft/hr)" isAnimationActive={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>

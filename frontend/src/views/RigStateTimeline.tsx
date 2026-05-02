@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   BarChart,
   Bar,
@@ -45,26 +45,28 @@ const CARD: React.CSSProperties = {
 };
 
 export default function RigStateTimeline({ history }: Props) {
-  const timelineData = history.slice(-300).map((p) => ({
+  const timelineData = useMemo(() => history.slice(-500).map((p) => ({
     time: p.record.time,
     stateIdx: STATE_INDEX[p.rig_state.state] ?? 0,
     state: p.rig_state.state,
-  }));
+  })), [history]);
 
   // Distribution
-  const counts: Record<string, number> = {};
-  for (const p of history) {
-    const s = p.rig_state.state;
-    counts[s] = (counts[s] || 0) + 1;
-  }
-  const total = history.length || 1;
-  const distData = Object.entries(counts)
-    .sort(([, a], [, b]) => b - a)
-    .map(([state, count]) => ({
-      state,
-      count,
-      pct: ((count / total) * 100).toFixed(1),
-    }));
+  const distData = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const p of history) {
+      const s = p.rig_state.state;
+      counts[s] = (counts[s] || 0) + 1;
+    }
+    const total = history.length || 1;
+    return Object.entries(counts)
+      .sort(([, a], [, b]) => b - a)
+      .map(([state, count]) => ({
+        state,
+        count,
+        pct: ((count / total) * 100).toFixed(1),
+      }));
+  }, [history]);
 
   return (
     <div>
@@ -92,7 +94,7 @@ export default function RigStateTimeline({ history }: Props) {
                 "State",
               ]}
             />
-            <Bar dataKey="stateIdx" name="State">
+            <Bar dataKey="stateIdx" name="State" isAnimationActive={false}>
               {timelineData.map((entry, i) => (
                 <Cell key={i} fill={STATE_COLORS[entry.state] ?? "#4a5568"} />
               ))}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   ScatterChart,
   Scatter,
@@ -28,20 +28,20 @@ export default function BroomstickView({ wellId, replayIndex }: Props) {
   const [bins, setBins] = useState<BroomstickBin[]>([]);
 
   useEffect(() => {
-    if (replayIndex % 5 === 0 || replayIndex === 0) {
+    if (replayIndex % 3 === 0 || replayIndex === 0) {
       fetchJSON<BroomstickBin[]>(`/broomstick/${wellId}`).then(setBins).catch(() => {});
     }
   }, [wellId, replayIndex]);
 
-  const pickupData = bins
+  const pickupData = useMemo(() => bins
     .filter((b) => b.pickup_hookload != null)
-    .map((b) => ({ depth: b.depth_bin, hookload: b.pickup_hookload }));
-  const slackoffData = bins
+    .map((b) => ({ depth: b.depth_bin, hookload: b.pickup_hookload })), [bins]);
+  const slackoffData = useMemo(() => bins
     .filter((b) => b.slackoff_hookload != null)
-    .map((b) => ({ depth: b.depth_bin, hookload: b.slackoff_hookload }));
-  const rotationData = bins
+    .map((b) => ({ depth: b.depth_bin, hookload: b.slackoff_hookload })), [bins]);
+  const rotationData = useMemo(() => bins
     .filter((b) => b.rotation_hookload != null)
-    .map((b) => ({ depth: b.depth_bin, hookload: b.rotation_hookload }));
+    .map((b) => ({ depth: b.depth_bin, hookload: b.rotation_hookload })), [bins]);
 
   return (
     <div>
@@ -75,9 +75,9 @@ export default function BroomstickView({ wellId, replayIndex }: Props) {
               contentStyle={{ background: "#1a1f2e", border: "1px solid #4a5568" }}
             />
             <Legend wrapperStyle={{ fontSize: 11 }} />
-            <Scatter name="Pickup" data={pickupData} fill="#38b2ac" />
-            <Scatter name="Slack-Off" data={slackoffData} fill="#ed8936" />
-            <Scatter name="Rotation" data={rotationData} fill="#9f7aea" />
+            <Scatter name="Pickup" data={pickupData} fill="#38b2ac" isAnimationActive={false} />
+            <Scatter name="Slack-Off" data={slackoffData} fill="#ed8936" isAnimationActive={false} />
+            <Scatter name="Rotation" data={rotationData} fill="#9f7aea" isAnimationActive={false} />
           </ScatterChart>
         </ResponsiveContainer>
       </div>
@@ -113,6 +113,7 @@ export default function BroomstickView({ wellId, replayIndex }: Props) {
               name="Rotation Torque"
               data={bins.filter((b) => b.rotation_torque != null)}
               fill="#f6ad55"
+              isAnimationActive={false}
             />
           </ScatterChart>
         </ResponsiveContainer>

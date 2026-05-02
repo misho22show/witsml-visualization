@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   LineChart,
   Line,
@@ -32,21 +32,21 @@ const CONDITION_COLORS: Record<string, string> = {
 };
 
 export default function SurgeSwabView({ history }: Props) {
-  const chartData = history.slice(-200).map((p) => ({
+  const chartData = useMemo(() => history.slice(-500).map((p) => ({
     time: p.record.time,
     pressure_deviation: p.surge_swab?.pressure_deviation ?? 0,
     movement_rate: p.surge_swab?.movement_rate ?? 0,
     severity: p.surge_swab?.severity ?? 0,
-  }));
+  })), [history]);
 
-  const surgeSwabEvents = history
+  const surgeSwabEvents = useMemo(() => history
     .filter(
       (p) =>
         p.surge_swab &&
         p.surge_swab.condition !== "Neutral" &&
         p.surge_swab.condition !== "Unclassified"
     )
-    .slice(-50);
+    .slice(-50), [history]);
 
   return (
     <div>
@@ -60,7 +60,7 @@ export default function SurgeSwabView({ history }: Props) {
             <YAxis stroke="#718096" tick={{ fontSize: 10 }} label={{ value: "Rate (m/s)", angle: -90, position: "insideLeft", style: { fontSize: 10, fill: "#718096" } }} />
             <Tooltip contentStyle={{ background: "#1a1f2e", border: "1px solid #4a5568", fontSize: 11 }} />
             <ReferenceLine y={0} stroke="#4a5568" />
-            <Line type="monotone" dataKey="movement_rate" stroke="#63b3ed" dot={false} strokeWidth={2} name="Rate (m/s)" />
+            <Line type="monotone" dataKey="movement_rate" stroke="#63b3ed" dot={false} strokeWidth={2} name="Rate (m/s)" isAnimationActive={false} />
           </LineChart>
         </ResponsiveContainer>
       </div>
@@ -76,8 +76,8 @@ export default function SurgeSwabView({ history }: Props) {
             <Tooltip contentStyle={{ background: "#1a1f2e", border: "1px solid #4a5568", fontSize: 11 }} />
             <Legend wrapperStyle={{ fontSize: 11 }} />
             <ReferenceLine y={0} stroke="#4a5568" />
-            <Line type="monotone" dataKey="pressure_deviation" stroke="#fc8181" dot={false} strokeWidth={2} name="ΔP (psi)" />
-            <Line type="monotone" dataKey="severity" stroke="#f6ad55" dot={false} strokeWidth={1.5} name="Severity" />
+            <Line type="monotone" dataKey="pressure_deviation" stroke="#fc8181" dot={false} strokeWidth={2} name="ΔP (psi)" isAnimationActive={false} />
+            <Line type="monotone" dataKey="severity" stroke="#f6ad55" dot={false} strokeWidth={1.5} name="Severity" isAnimationActive={false} />
           </LineChart>
         </ResponsiveContainer>
       </div>
