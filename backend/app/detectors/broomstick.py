@@ -11,7 +11,7 @@ from app.models.schemas import BroomstickBin, RigState, WitsmlRecord
 
 
 class BroomstickAggregator:
-    def __init__(self, bin_size: float = 50.0) -> None:
+    def __init__(self, bin_size: float = 5.0) -> None:
         self.bin_size = bin_size
         self._bins: dict[float, dict[str, list[float]]] = defaultdict(
             lambda: {

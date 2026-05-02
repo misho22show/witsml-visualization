@@ -49,7 +49,7 @@ class EventType(str, Enum):
 
 class DetectionSettings(BaseModel):
     rpm_threshold: float = Field(5.0, description="RPM above this => rotating")
-    depth_delta_threshold: float = Field(0.05, description="Depth change per sample for movement")
+    depth_delta_threshold: float = Field(0.003, description="Depth change per sample for movement")
     flow_threshold: float = Field(10.0, description="Flow rate above this => pumps on")
     pressure_baseline_window: int = Field(20, description="Rolling window size for pressure baseline")
     pressure_deviation_threshold: float = Field(50.0, description="Pressure deviation for surge/swab")

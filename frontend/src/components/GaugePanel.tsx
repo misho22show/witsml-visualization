@@ -121,10 +121,10 @@ export default function GaugePanel({ hookload, rop, flowRate, spp }: GaugePanelP
         value={rop}
         unit="ft/hr"
         min={0}
-        max={8000}
+        max={400}
         color="#48bb78"
-        warningThreshold={5000}
-        dangerThreshold={7000}
+        warningThreshold={250}
+        dangerThreshold={350}
       />
       <Gauge
         label="Hook Load"

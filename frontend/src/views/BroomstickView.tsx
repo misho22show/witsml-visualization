@@ -68,6 +68,7 @@ export default function BroomstickView({ wellId, replayIndex }: Props) {
               reversed
               stroke="#718096"
               tick={{ fontSize: 10 }}
+              domain={['dataMin - 5', 'dataMax + 5']}
             />
             <Tooltip
               cursor={{ strokeDasharray: "3 3" }}
@@ -105,6 +106,7 @@ export default function BroomstickView({ wellId, replayIndex }: Props) {
               reversed
               stroke="#718096"
               tick={{ fontSize: 10 }}
+              domain={['dataMin - 5', 'dataMax + 5']}
             />
             <Tooltip contentStyle={{ background: "#1a1f2e", border: "1px solid #4a5568" }} />
             <Scatter
