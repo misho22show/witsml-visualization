@@ -70,6 +70,31 @@ export interface WellInfo {
   record_count: number;
 }
 
+/* ---- Accumulated data (never trimmed) ---- */
+
+export interface BroomstickBinAcc {
+  pickup_sum: number;
+  pickup_count: number;
+  slackoff_sum: number;
+  slackoff_count: number;
+  rotation_sum: number;
+  rotation_count: number;
+  torque_sum: number;
+  torque_count: number;
+}
+
+export interface AccumulatedData {
+  broomstickBins: Record<number, BroomstickBinAcc>;
+  broomstickPrevDepth: number | null;
+  rigStateCounts: Record<string, number>;
+  surgeEvents: SurgeSwabEvent[];
+  detectedEvents: DetectedEvent[];
+  heatmapTorque: { depth: number; torque: number }[];
+  heatmapHookload: { depth: number; hookload: number }[];
+  timeAtDepthBins: Record<number, number>;
+  totalProcessed: number;
+}
+
 export interface DetectionSettings {
   rpm_threshold: number;
   depth_delta_threshold: number;

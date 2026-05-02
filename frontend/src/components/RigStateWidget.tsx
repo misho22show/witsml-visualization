@@ -1,9 +1,11 @@
 import React, { useMemo, useState } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import { StreamPayload } from "../utils/types";
+import { AccumulatedData, StreamPayload } from "../utils/types";
 
 interface Props {
   history: StreamPayload[];
+  accumulated: AccumulatedData;
+  accVersion: number;
 }
 
 const STATE_COLORS: Record<string, string> = {
@@ -33,10 +35,21 @@ function windowRecords(history: StreamPayload[], w: TimeWindow): StreamPayload[]
   return history.filter((p) => p.record.time >= cutoff);
 }
 
-export default function RigStateWidget({ history }: Props) {
+export default function RigStateWidget({ history, accumulated, accVersion }: Props) {
   const [window, setWindow] = useState<TimeWindow>("full");
 
   const { data, dominant } = useMemo(() => {
+    if (window === "full") {
+      // Use accumulated data (never trimmed)
+      const total = Object.values(accumulated.rigStateCounts).reduce((a, b) => a + b, 0) || 1;
+      const data = Object.entries(accumulated.rigStateCounts)
+        .map(([name, value]) => ({ name, value, pct: ((value / total) * 100).toFixed(1) }))
+        .sort((a, b) => b.value - a.value);
+      const dominant = data.length > 0 ? data[0].name : "—";
+      return { data, dominant };
+    }
+
+    // For time windows, use the sliding history
     const records = windowRecords(history, window);
     const counts: Record<string, number> = {};
     for (const p of records) {
@@ -49,7 +62,7 @@ export default function RigStateWidget({ history }: Props) {
       .sort((a, b) => b.value - a.value);
     const dominant = data.length > 0 ? data[0].name : "—";
     return { data, dominant };
-  }, [history, window]);
+  }, [history, window, accumulated, accVersion]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div

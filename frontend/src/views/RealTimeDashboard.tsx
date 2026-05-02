@@ -112,6 +112,7 @@ export default function RealTimeDashboard({ history, latest }: Props) {
             rop={latest?.record.rop ?? null}
             flowRate={latest?.record.flow_rate ?? null}
             spp={latest?.record.standpipe_pressure ?? null}
+            torque={latest?.record.surface_torque ?? null}
           />
         </div>
       </div>
@@ -257,26 +258,41 @@ export default function RealTimeDashboard({ history, latest }: Props) {
         </div>
       </div>
 
-      {/* Events log */}
-      {latest && latest.events.length > 0 && (
-        <div style={CARD}>
-          <h3 style={{ fontSize: 14, marginBottom: 8 }}>Events</h3>
-          {latest.events.map((e, i) => (
-            <div
-              key={i}
-              style={{
-                padding: "4px 8px",
-                marginBottom: 4,
-                borderLeft: "3px solid #ed8936",
-                fontSize: 12,
-              }}
-            >
-              <strong>{e.event_type}</strong> at t={e.time.toFixed(1)}s{" "}
-              <ConfidenceBadge level={e.confidence} />
+      {/* Recent Events */}
+      {(() => {
+        const recentEvents = history
+          .flatMap((p) => p.events)
+          .slice(-20);
+        if (recentEvents.length === 0) return null;
+        return (
+          <div style={CARD}>
+            <h3 style={{ fontSize: 14, marginBottom: 8 }}>Recent Events ({recentEvents.length})</h3>
+            <div style={{ maxHeight: 180, overflowY: "auto" }}>
+              {recentEvents.map((e, i) => (
+                <div
+                  key={i}
+                  style={{
+                    padding: "4px 8px",
+                    marginBottom: 4,
+                    borderLeft: `3px solid ${e.event_type.includes("start") ? "#38b2ac" : "#ed8936"}`,
+                    fontSize: 12,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                  }}
+                >
+                  <strong>{e.event_type}</strong>
+                  <span style={{ color: "#a0aec0" }}>
+                    t={e.time.toFixed(1)}s
+                    {e.depth != null && ` | ${e.depth.toFixed(1)}m`}
+                  </span>
+                  <ConfidenceBadge level={e.confidence} />
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      )}
+          </div>
+        );
+      })()}
     </div>
   );
 }

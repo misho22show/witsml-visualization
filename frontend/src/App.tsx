@@ -27,7 +27,7 @@ export default function App() {
   const [selectedWell, setSelectedWell] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>("dashboard");
 
-  const { connected, latest, history, clearHistory } = useWitsmlStream(selectedWell);
+  const { connected, latest, history, accumulated, accVersion, clearHistory } = useWitsmlStream(selectedWell);
 
   useEffect(() => {
     fetchJSON<WellInfo[]>("/wells")
@@ -166,19 +166,19 @@ export default function App() {
             <RealTimeDashboard history={history} latest={latest} />
           )}
           {tab === "broomstick" && (
-            <BroomstickView history={history} />
+            <BroomstickView accumulated={accumulated} accVersion={accVersion} />
           )}
-          {tab === "surge-swab" && <SurgeSwabView history={history} />}
-          {tab === "rig-state" && <RigStateTimeline history={history} />}
+          {tab === "surge-swab" && <SurgeSwabView history={history} accumulated={accumulated} accVersion={accVersion} />}
+          {tab === "rig-state" && <RigStateTimeline history={history} accumulated={accumulated} accVersion={accVersion} />}
           {tab === "quality" && (
             <DataQualityView latest={latest} history={history} />
           )}
-          {tab === "heatmaps" && <HeatmapView history={history} />}
+          {tab === "heatmaps" && <HeatmapView accumulated={accumulated} accVersion={accVersion} />}
         </div>
 
         {/* Right sidebar – rig-state widget */}
         <div style={{ width: "26%", minWidth: 240, maxWidth: 320, flexShrink: 0 }}>
-          <RigStateWidget history={history} />
+          <RigStateWidget history={history} accumulated={accumulated} accVersion={accVersion} />
         </div>
       </div>
     </div>

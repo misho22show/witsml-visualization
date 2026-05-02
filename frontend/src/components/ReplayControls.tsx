@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { postJSON } from "../utils/api";
 
 interface Props {
@@ -35,7 +35,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   fill: {
     height: "100%",
-    background: "#38b2ac",
+    background: "linear-gradient(90deg, #38b2ac, #48bb78)",
     borderRadius: 3,
     transition: "width 0.15s",
   },
@@ -55,40 +55,88 @@ const SPEEDS = [0.5, 1, 2, 5, 10];
 
 export default function ReplayControls({ wellId, replayIndex, totalRecords, onReset }: Props) {
   const [speed, setSpeed] = useState(1);
+  const [playing, setPlaying] = useState(false);
 
-  const start = () =>
+  const start = useCallback(() => {
     postJSON(`/replay/start?well_id=${wellId}`);
-  const pause = () =>
+    setPlaying(true);
+  }, [wellId]);
+
+  const pause = useCallback(() => {
     postJSON(`/replay/pause?well_id=${wellId}`);
-  const reset = async () => {
+    setPlaying(false);
+  }, [wellId]);
+
+  const reset = useCallback(async () => {
     await postJSON(`/replay/reset?well_id=${wellId}`);
+    setPlaying(false);
     onReset();
-  };
-  const changeSpeed = async (s: number) => {
+  }, [wellId, onReset]);
+
+  const changeSpeed = useCallback(async (s: number) => {
     setSpeed(s);
     await postJSON(`/settings/playback-speed?speed=${s}`);
-  };
+  }, []);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLSelectElement) return;
+      switch (e.key) {
+        case " ":
+          e.preventDefault();
+          playing ? pause() : start();
+          break;
+        case "r":
+          if (!e.ctrlKey && !e.metaKey) reset();
+          break;
+        case "+":
+        case "=": {
+          const idx = SPEEDS.indexOf(speed);
+          if (idx < SPEEDS.length - 1) changeSpeed(SPEEDS[idx + 1]);
+          break;
+        }
+        case "-": {
+          const idx = SPEEDS.indexOf(speed);
+          if (idx > 0) changeSpeed(SPEEDS[idx - 1]);
+          break;
+        }
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [playing, speed, start, pause, reset, changeSpeed]);
 
   const pct = totalRecords > 0 ? (replayIndex / totalRecords) * 100 : 0;
 
   return (
     <div style={styles.bar}>
-      <button style={{ ...styles.btn, background: "#38b2ac", color: "#fff" }} onClick={start}>
-        ▶ Play
-      </button>
-      <button style={{ ...styles.btn, background: "#ed8936", color: "#fff" }} onClick={pause}>
-        ⏸ Pause
-      </button>
-      <button style={{ ...styles.btn, background: "#e53e3e", color: "#fff" }} onClick={reset}>
+      {playing ? (
+        <button style={{ ...styles.btn, background: "#ed8936", color: "#fff" }} onClick={pause} title="Pause (Space)">
+          ⏸ Pause
+        </button>
+      ) : (
+        <button style={{ ...styles.btn, background: "#38b2ac", color: "#fff" }} onClick={start} title="Play (Space)">
+          ▶ Play
+        </button>
+      )}
+      <button style={{ ...styles.btn, background: "#e53e3e", color: "#fff" }} onClick={reset} title="Reset (R)">
         ⟳ Reset
       </button>
 
       <div style={styles.progress}>
         <div style={{ ...styles.fill, width: `${pct}%` }} />
       </div>
+
       <span style={styles.label}>
-        {replayIndex} / {totalRecords}
+        {replayIndex.toLocaleString()} / {totalRecords.toLocaleString()}
       </span>
+
+      <span style={{ fontSize: 10, color: "#4a5568" }}>|</span>
+
+      <span style={{ fontSize: 11, color: "#718096" }}>{pct.toFixed(1)}%</span>
+
+      <span style={{ fontSize: 10, color: "#4a5568" }}>|</span>
 
       <span style={{ fontSize: 12, color: "#a0aec0" }}>Speed:</span>
       {SPEEDS.map((s) => (
@@ -100,6 +148,7 @@ export default function ReplayControls({ wellId, replayIndex, totalRecords, onRe
             color: speed === s ? "#fff" : "#e2e8f0",
           }}
           onClick={() => changeSpeed(s)}
+          title={`${s}x speed (+/- to adjust)`}
         >
           {s}x
         </button>

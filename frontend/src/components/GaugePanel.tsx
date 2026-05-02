@@ -111,11 +111,12 @@ interface GaugePanelProps {
   rop: number | null;
   flowRate: number | null;
   spp: number | null;
+  torque: number | null;
 }
 
-export default function GaugePanel({ hookload, rop, flowRate, spp }: GaugePanelProps) {
+export default function GaugePanel({ hookload, rop, flowRate, spp, torque }: GaugePanelProps) {
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 8 }}>
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr", gap: 8 }}>
       <Gauge
         label="ROP"
         value={rop}
@@ -155,6 +156,16 @@ export default function GaugePanel({ hookload, rop, flowRate, spp }: GaugePanelP
         color="#ed8936"
         warningThreshold={3500}
         dangerThreshold={4000}
+      />
+      <Gauge
+        label="Torque"
+        value={torque}
+        unit="kft·lbf"
+        min={0}
+        max={50}
+        color="#f6ad55"
+        warningThreshold={30}
+        dangerThreshold={40}
       />
     </div>
   );
