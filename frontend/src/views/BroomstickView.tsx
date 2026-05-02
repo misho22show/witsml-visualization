@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import {
   ScatterChart,
   Scatter,
@@ -9,12 +9,10 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import { fetchJSON } from "../utils/api";
-import { BroomstickBin } from "../utils/types";
+import { StreamPayload } from "../utils/types";
 
 interface Props {
-  wellId: string;
-  replayIndex: number;
+  history: StreamPayload[];
 }
 
 const CARD: React.CSSProperties = {
@@ -24,24 +22,104 @@ const CARD: React.CSSProperties = {
   marginBottom: 12,
 };
 
-export default function BroomstickView({ wellId, replayIndex }: Props) {
-  const [bins, setBins] = useState<BroomstickBin[]>([]);
+const BIN_SIZE = 5.0;
 
-  useEffect(() => {
-    if (replayIndex % 3 === 0 || replayIndex === 0) {
-      fetchJSON<BroomstickBin[]>(`/broomstick/${wellId}`).then(setBins).catch(() => {});
+const ROTATION_STATES = new Set(["Drilling", "Rotating Off-Bottom", "Reaming"]);
+
+function computeBroomstickBins(history: StreamPayload[]) {
+  const bins: Record<
+    number,
+    {
+      pickup_hl: number[];
+      slackoff_hl: number[];
+      rotation_hl: number[];
+      rotation_torque: number[];
     }
-  }, [wellId, replayIndex]);
+  > = {};
 
-  const pickupData = useMemo(() => bins
-    .filter((b) => b.pickup_hookload != null)
-    .map((b) => ({ depth: b.depth_bin, hookload: b.pickup_hookload })), [bins]);
-  const slackoffData = useMemo(() => bins
-    .filter((b) => b.slackoff_hookload != null)
-    .map((b) => ({ depth: b.depth_bin, hookload: b.slackoff_hookload })), [bins]);
-  const rotationData = useMemo(() => bins
-    .filter((b) => b.rotation_hookload != null)
-    .map((b) => ({ depth: b.depth_bin, hookload: b.rotation_hookload })), [bins]);
+  let prevDepth: number | null = null;
+
+  for (const payload of history) {
+    const rec = payload.record;
+    const depth = rec.measured_depth ?? rec.block_position;
+    if (depth == null || rec.hookload == null) {
+      prevDepth = depth ?? prevDepth;
+      continue;
+    }
+
+    const binKey = Math.round(depth / BIN_SIZE) * BIN_SIZE;
+    if (!bins[binKey]) {
+      bins[binKey] = {
+        pickup_hl: [],
+        slackoff_hl: [],
+        rotation_hl: [],
+        rotation_torque: [],
+      };
+    }
+
+    let depthDelta = 0;
+    if (prevDepth != null) {
+      depthDelta = depth - prevDepth;
+    }
+    prevDepth = depth;
+
+    if (depthDelta < -0.01) {
+      bins[binKey].pickup_hl.push(rec.hookload);
+    } else if (depthDelta > 0.01) {
+      bins[binKey].slackoff_hl.push(rec.hookload);
+    }
+
+    const state = payload.rig_state?.state ?? "";
+    if (ROTATION_STATES.has(state)) {
+      bins[binKey].rotation_hl.push(rec.hookload);
+      if (rec.surface_torque != null) {
+        bins[binKey].rotation_torque.push(rec.surface_torque);
+      }
+    }
+  }
+
+  const avg = (arr: number[]) =>
+    arr.length > 0 ? arr.reduce((a, b) => a + b, 0) / arr.length : null;
+
+  return Object.entries(bins)
+    .map(([key, data]) => ({
+      depth_bin: Number(key),
+      pickup_hookload: avg(data.pickup_hl),
+      slackoff_hookload: avg(data.slackoff_hl),
+      rotation_hookload: avg(data.rotation_hl),
+      rotation_torque: avg(data.rotation_torque),
+      sample_count:
+        data.pickup_hl.length +
+        data.slackoff_hl.length +
+        data.rotation_hl.length,
+    }))
+    .sort((a, b) => a.depth_bin - b.depth_bin);
+}
+
+export default function BroomstickView({ history }: Props) {
+  const bins = useMemo(() => computeBroomstickBins(history), [history]);
+
+  const pickupData = useMemo(
+    () =>
+      bins
+        .filter((b) => b.pickup_hookload != null)
+        .map((b) => ({ depth: b.depth_bin, hookload: b.pickup_hookload })),
+    [bins]
+  );
+  const slackoffData = useMemo(
+    () =>
+      bins
+        .filter((b) => b.slackoff_hookload != null)
+        .map((b) => ({ depth: b.depth_bin, hookload: b.slackoff_hookload })),
+    [bins]
+  );
+  const rotationData = useMemo(
+    () =>
+      bins
+        .filter((b) => b.rotation_hookload != null)
+        .map((b) => ({ depth: b.depth_bin, hookload: b.rotation_hookload })),
+    [bins]
+  );
 
   return (
     <div>
@@ -68,16 +146,34 @@ export default function BroomstickView({ wellId, replayIndex }: Props) {
               reversed
               stroke="#718096"
               tick={{ fontSize: 10 }}
-              domain={['dataMin - 5', 'dataMax + 5']}
+              domain={["dataMin - 5", "dataMax + 5"]}
             />
             <Tooltip
               cursor={{ strokeDasharray: "3 3" }}
-              contentStyle={{ background: "#1a1f2e", border: "1px solid #4a5568" }}
+              contentStyle={{
+                background: "#1a1f2e",
+                border: "1px solid #4a5568",
+              }}
             />
             <Legend wrapperStyle={{ fontSize: 11 }} />
-            <Scatter name="Pickup" data={pickupData} fill="#38b2ac" isAnimationActive={false} />
-            <Scatter name="Slack-Off" data={slackoffData} fill="#ed8936" isAnimationActive={false} />
-            <Scatter name="Rotation" data={rotationData} fill="#9f7aea" isAnimationActive={false} />
+            <Scatter
+              name="Pickup"
+              data={pickupData}
+              fill="#38b2ac"
+              isAnimationActive={false}
+            />
+            <Scatter
+              name="Slack-Off"
+              data={slackoffData}
+              fill="#ed8936"
+              isAnimationActive={false}
+            />
+            <Scatter
+              name="Rotation"
+              data={rotationData}
+              fill="#9f7aea"
+              isAnimationActive={false}
+            />
           </ScatterChart>
         </ResponsiveContainer>
       </div>
@@ -106,9 +202,14 @@ export default function BroomstickView({ wellId, replayIndex }: Props) {
               reversed
               stroke="#718096"
               tick={{ fontSize: 10 }}
-              domain={['dataMin - 5', 'dataMax + 5']}
+              domain={["dataMin - 5", "dataMax + 5"]}
             />
-            <Tooltip contentStyle={{ background: "#1a1f2e", border: "1px solid #4a5568" }} />
+            <Tooltip
+              contentStyle={{
+                background: "#1a1f2e",
+                border: "1px solid #4a5568",
+              }}
+            />
             <Scatter
               name="Rotation Torque"
               data={bins.filter((b) => b.rotation_torque != null)}

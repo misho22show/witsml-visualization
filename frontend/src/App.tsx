@@ -165,8 +165,8 @@ export default function App() {
           {tab === "dashboard" && (
             <RealTimeDashboard history={history} latest={latest} />
           )}
-          {tab === "broomstick" && selectedWell && (
-            <BroomstickView wellId={selectedWell} replayIndex={replayIndex} />
+          {tab === "broomstick" && (
+            <BroomstickView history={history} />
           )}
           {tab === "surge-swab" && <SurgeSwabView history={history} />}
           {tab === "rig-state" && <RigStateTimeline history={history} />}
