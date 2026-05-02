@@ -142,11 +142,11 @@ export default function RealTimeDashboard({ history, latest }: Props) {
         </div>
       )}
 
-      {/* Multi-channel chart */}
+      {/* Multi-channel chart — dedicated Y-axis per channel */}
       <div style={CARD}>
         <h3 style={{ fontSize: 14, marginBottom: 8 }}>Real-Time Channels</h3>
-        <ResponsiveContainer width="100%" height={320}>
-          <LineChart data={chartData}>
+        <ResponsiveContainer width="100%" height={360}>
+          <LineChart data={chartData} margin={{ left: 60, right: 60 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#2d3748" />
             <XAxis
               dataKey="time"
@@ -154,28 +154,55 @@ export default function RealTimeDashboard({ history, latest }: Props) {
               tick={{ fontSize: 10 }}
               label={{ value: "Time (s)", position: "insideBottomRight", offset: -4, style: { fontSize: 10, fill: "#718096" } }}
             />
+            {/* Hookload axis (left, outermost) */}
             <YAxis
-              yAxisId="left"
-              stroke="#718096"
-              tick={{ fontSize: 10 }}
-              label={{ value: "klbf / kft·lbf", angle: -90, position: "insideLeft", style: { fontSize: 10, fill: "#718096" } }}
+              yAxisId="hookload"
+              orientation="left"
+              stroke="#38b2ac"
+              tick={{ fontSize: 9, fill: "#38b2ac" }}
+              label={{ value: "klbf", angle: -90, position: "insideLeft", offset: 10, style: { fontSize: 9, fill: "#38b2ac" } }}
             />
+            {/* Torque axis (left, inner) */}
             <YAxis
-              yAxisId="right"
+              yAxisId="torque"
+              orientation="left"
+              stroke="#ed8936"
+              tick={{ fontSize: 9, fill: "#ed8936" }}
+              label={{ value: "kft·lbf", angle: -90, position: "insideLeft", offset: 10, style: { fontSize: 9, fill: "#ed8936" } }}
+            />
+            {/* RPM axis (right, innermost) */}
+            <YAxis
+              yAxisId="rpm"
               orientation="right"
-              stroke="#718096"
-              tick={{ fontSize: 10 }}
-              label={{ value: "rpm / gpm / psi", angle: 90, position: "insideRight", style: { fontSize: 10, fill: "#718096" } }}
+              stroke="#9f7aea"
+              tick={{ fontSize: 9, fill: "#9f7aea" }}
+              label={{ value: "rpm", angle: 90, position: "insideRight", offset: 10, style: { fontSize: 9, fill: "#9f7aea" } }}
+            />
+            {/* Flow axis (right, middle) */}
+            <YAxis
+              yAxisId="flow"
+              orientation="right"
+              stroke="#63b3ed"
+              tick={{ fontSize: 9, fill: "#63b3ed" }}
+              label={{ value: "gpm", angle: 90, position: "insideRight", offset: 10, style: { fontSize: 9, fill: "#63b3ed" } }}
+            />
+            {/* SPP axis (right, outermost) */}
+            <YAxis
+              yAxisId="spp"
+              orientation="right"
+              stroke="#fc8181"
+              tick={{ fontSize: 9, fill: "#fc8181" }}
+              label={{ value: "psi", angle: 90, position: "insideRight", offset: 10, style: { fontSize: 9, fill: "#fc8181" } }}
             />
             <Tooltip
               contentStyle={{ background: "#1a1f2e", border: "1px solid #4a5568", fontSize: 11 }}
             />
             <Legend wrapperStyle={{ fontSize: 11 }} />
-            <Line yAxisId="left" type="monotone" dataKey="hookload" stroke="#38b2ac" dot={false} strokeWidth={2} name="Hookload (klbf)" isAnimationActive={false} />
-            <Line yAxisId="left" type="monotone" dataKey="torque" stroke="#ed8936" dot={false} strokeWidth={2} name="Torque (kft·lbf)" isAnimationActive={false} />
-            <Line yAxisId="right" type="monotone" dataKey="rpm" stroke="#9f7aea" dot={false} strokeWidth={1.5} name="RPM" isAnimationActive={false} />
-            <Line yAxisId="right" type="monotone" dataKey="flow" stroke="#63b3ed" dot={false} strokeWidth={1.5} name="Flow (gpm)" isAnimationActive={false} />
-            <Line yAxisId="right" type="monotone" dataKey="pressure" stroke="#fc8181" dot={false} strokeWidth={1.5} name="SPP (psi)" isAnimationActive={false} />
+            <Line yAxisId="hookload" type="monotone" dataKey="hookload" stroke="#38b2ac" dot={false} strokeWidth={2} name="Hookload (klbf)" isAnimationActive={false} />
+            <Line yAxisId="torque" type="monotone" dataKey="torque" stroke="#ed8936" dot={false} strokeWidth={2} name="Torque (kft·lbf)" isAnimationActive={false} />
+            <Line yAxisId="rpm" type="monotone" dataKey="rpm" stroke="#9f7aea" dot={false} strokeWidth={1.5} name="RPM" isAnimationActive={false} />
+            <Line yAxisId="flow" type="monotone" dataKey="flow" stroke="#63b3ed" dot={false} strokeWidth={1.5} name="Flow (gpm)" isAnimationActive={false} />
+            <Line yAxisId="spp" type="monotone" dataKey="pressure" stroke="#fc8181" dot={false} strokeWidth={1.5} name="SPP (psi)" isAnimationActive={false} />
           </LineChart>
         </ResponsiveContainer>
       </div>
@@ -206,15 +233,17 @@ export default function RealTimeDashboard({ history, latest }: Props) {
         </div>
 
         <div style={CARD}>
-          <h3 style={{ fontSize: 14, marginBottom: 8 }}>Rate of Penetration</h3>
+          <h3 style={{ fontSize: 14, marginBottom: 8 }}>ROP vs Depth</h3>
           <ResponsiveContainer width="100%" height={200}>
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#2d3748" />
               <XAxis
-                dataKey="time"
+                dataKey="depth"
                 stroke="#718096"
                 tick={{ fontSize: 10 }}
-                label={{ value: "Time (s)", position: "insideBottomRight", offset: -4, style: { fontSize: 10, fill: "#718096" } }}
+                type="number"
+                domain={["dataMin", "dataMax"]}
+                label={{ value: "Depth (m)", position: "insideBottomRight", offset: -4, style: { fontSize: 10, fill: "#718096" } }}
               />
               <YAxis
                 stroke="#718096"
