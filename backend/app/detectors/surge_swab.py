@@ -30,7 +30,11 @@ class SurgeSwabDetector:
 
     def evaluate(self, rec: WitsmlRecord) -> SurgeSwabEvent:
         depth = rec.measured_depth if rec.measured_depth is not None else rec.block_position
-        pressure = rec.standpipe_pressure or rec.annular_pressure or rec.ecd
+        pressure = (
+            rec.standpipe_pressure
+            if rec.standpipe_pressure is not None
+            else (rec.annular_pressure if rec.annular_pressure is not None else rec.ecd)
+        )
 
         # Channel availability
         has_depth = depth is not None

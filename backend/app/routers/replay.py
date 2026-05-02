@@ -37,9 +37,10 @@ async def replay_pause(well_id: str) -> dict:
 
 @router.post("/replay/reset")
 async def replay_reset(well_id: str) -> dict:
-    engine = _store().reset_replay(well_id)
+    engine = _store().get_replay(well_id)
     if engine is None:
         raise HTTPException(404, "Well not found")
+    await engine.reset()
     return {"status": "reset", "well_id": well_id}
 
 
@@ -82,3 +83,12 @@ def update_settings(settings: DetectionSettings) -> dict:
     for engine in s.replays.values():
         engine.update_settings(settings)
     return {"status": "updated", "settings": settings.model_dump()}
+
+
+@router.post("/settings/playback-speed")
+def update_playback_speed(speed: float = 1.0) -> dict:
+    s = _store()
+    s.settings.playback_speed = speed
+    for engine in s.replays.values():
+        engine.settings.playback_speed = speed
+    return {"status": "updated", "playback_speed": speed}

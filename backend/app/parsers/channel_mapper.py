@@ -30,7 +30,6 @@ _ALIAS_MAP: dict[str, str] = {
     "SURFACE_TORQUE": "surface_torque",
     # RPM
     "RPM": "rpm",
-    "ROPA": "rpm",
     "SRPM": "rpm",
     "ROTARY_RPM": "rpm",
     # Flow

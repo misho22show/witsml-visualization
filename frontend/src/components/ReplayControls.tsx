@@ -66,7 +66,7 @@ export default function ReplayControls({ wellId, replayIndex, totalRecords, onRe
   };
   const changeSpeed = async (s: number) => {
     setSpeed(s);
-    await postJSON("/settings/detection", { playback_speed: s });
+    await postJSON(`/settings/playback-speed?speed=${s}`);
   };
 
   const pct = totalRecords > 0 ? (replayIndex / totalRecords) * 100 : 0;

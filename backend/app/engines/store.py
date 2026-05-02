@@ -37,7 +37,9 @@ class DataStore:
             )
         return self.replays[well_id]
 
-    def reset_replay(self, well_id: str) -> ReplayEngine | None:
-        if well_id in self.replays:
-            del self.replays[well_id]
-        return self.get_replay(well_id)
+    async def reset_replay(self, well_id: str) -> ReplayEngine | None:
+        """Reset replay state in-place so existing WebSocket references stay valid."""
+        engine = self.get_replay(well_id)
+        if engine is not None:
+            await engine.reset()
+        return engine
