@@ -96,8 +96,10 @@ class WitsmlParser:
         tree = etree.parse(str(path))  # noqa: S320
         root = tree.getroot()
 
-        # Extract well/log name
-        name_el = root.find(".//{*}nameWell") or root.find(".//{*}name")
+        # Extract well name – prefer <nameWell> over generic <name>
+        name_el = root.find(".//{*}nameWell")
+        if name_el is None or not name_el.text:
+            name_el = root.find(".//{*}name")
         well_name = name_el.text.strip() if name_el is not None and name_el.text else path.stem
 
         # Find first <log> element

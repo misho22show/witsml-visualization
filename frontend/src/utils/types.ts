@@ -9,6 +9,7 @@ export interface WitsmlRecord {
   standpipe_pressure: number | null;
   annular_pressure: number | null;
   ecd: number | null;
+  rop: number | null;
 }
 
 export interface RigStateRecord {

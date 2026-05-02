@@ -72,6 +72,7 @@ class WitsmlRecord(BaseModel):
     standpipe_pressure: Optional[float] = None
     annular_pressure: Optional[float] = None
     ecd: Optional[float] = None
+    rop: Optional[float] = None
 
 
 class ChannelInfo(BaseModel):

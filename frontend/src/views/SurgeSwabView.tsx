@@ -56,11 +56,11 @@ export default function SurgeSwabView({ history }: Props) {
         <ResponsiveContainer width="100%" height={200}>
           <LineChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#2d3748" />
-            <XAxis dataKey="time" stroke="#718096" tick={{ fontSize: 10 }} />
-            <YAxis stroke="#718096" tick={{ fontSize: 10 }} />
-            <Tooltip contentStyle={{ background: "#1a1f2e", border: "1px solid #4a5568" }} />
+            <XAxis dataKey="time" stroke="#718096" tick={{ fontSize: 10 }} label={{ value: "Time (s)", position: "insideBottomRight", offset: -4, style: { fontSize: 10, fill: "#718096" } }} />
+            <YAxis stroke="#718096" tick={{ fontSize: 10 }} label={{ value: "Rate (m/s)", angle: -90, position: "insideLeft", style: { fontSize: 10, fill: "#718096" } }} />
+            <Tooltip contentStyle={{ background: "#1a1f2e", border: "1px solid #4a5568", fontSize: 11 }} />
             <ReferenceLine y={0} stroke="#4a5568" />
-            <Line type="monotone" dataKey="movement_rate" stroke="#63b3ed" dot={false} strokeWidth={2} />
+            <Line type="monotone" dataKey="movement_rate" stroke="#63b3ed" dot={false} strokeWidth={2} name="Rate (m/s)" />
           </LineChart>
         </ResponsiveContainer>
       </div>
@@ -71,12 +71,12 @@ export default function SurgeSwabView({ history }: Props) {
         <ResponsiveContainer width="100%" height={200}>
           <LineChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#2d3748" />
-            <XAxis dataKey="time" stroke="#718096" tick={{ fontSize: 10 }} />
-            <YAxis stroke="#718096" tick={{ fontSize: 10 }} />
-            <Tooltip contentStyle={{ background: "#1a1f2e", border: "1px solid #4a5568" }} />
+            <XAxis dataKey="time" stroke="#718096" tick={{ fontSize: 10 }} label={{ value: "Time (s)", position: "insideBottomRight", offset: -4, style: { fontSize: 10, fill: "#718096" } }} />
+            <YAxis stroke="#718096" tick={{ fontSize: 10 }} label={{ value: "ΔP (psi)", angle: -90, position: "insideLeft", style: { fontSize: 10, fill: "#718096" } }} />
+            <Tooltip contentStyle={{ background: "#1a1f2e", border: "1px solid #4a5568", fontSize: 11 }} />
             <Legend wrapperStyle={{ fontSize: 11 }} />
             <ReferenceLine y={0} stroke="#4a5568" />
-            <Line type="monotone" dataKey="pressure_deviation" stroke="#fc8181" dot={false} strokeWidth={2} name="Pressure Dev." />
+            <Line type="monotone" dataKey="pressure_deviation" stroke="#fc8181" dot={false} strokeWidth={2} name="ΔP (psi)" />
             <Line type="monotone" dataKey="severity" stroke="#f6ad55" dot={false} strokeWidth={1.5} name="Severity" />
           </LineChart>
         </ResponsiveContainer>
@@ -93,11 +93,11 @@ export default function SurgeSwabView({ history }: Props) {
           <table style={{ width: "100%", fontSize: 12, borderCollapse: "collapse" }}>
             <thead>
               <tr style={{ borderBottom: "1px solid #2d3748", color: "#a0aec0" }}>
-                <th style={{ padding: "6px 8px", textAlign: "left" }}>Time</th>
-                <th style={{ padding: "6px 8px", textAlign: "left" }}>Depth</th>
+                <th style={{ padding: "6px 8px", textAlign: "left" }}>Time (s)</th>
+                <th style={{ padding: "6px 8px", textAlign: "left" }}>Depth (m)</th>
                 <th style={{ padding: "6px 8px", textAlign: "left" }}>Condition</th>
-                <th style={{ padding: "6px 8px", textAlign: "left" }}>ΔP</th>
-                <th style={{ padding: "6px 8px", textAlign: "left" }}>Rate</th>
+                <th style={{ padding: "6px 8px", textAlign: "left" }}>ΔP (psi)</th>
+                <th style={{ padding: "6px 8px", textAlign: "left" }}>Rate (m/s)</th>
                 <th style={{ padding: "6px 8px", textAlign: "left" }}>Severity</th>
                 <th style={{ padding: "6px 8px", textAlign: "left" }}>Confidence</th>
               </tr>

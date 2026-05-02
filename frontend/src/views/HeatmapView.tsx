@@ -122,7 +122,7 @@ export default function HeatmapView({ history }: Props) {
         <ResponsiveContainer width="100%" height={300}>
           <ScatterChart margin={{ top: 10, right: 30, bottom: 10, left: 10 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#2d3748" />
-            <XAxis type="number" dataKey="samples" name="Samples" stroke="#718096" tick={{ fontSize: 10 }} />
+            <XAxis type="number" dataKey="samples" name="Samples" unit=" ct" stroke="#718096" tick={{ fontSize: 10 }} />
             <YAxis type="number" dataKey="depth" name="Depth" unit=" m" reversed stroke="#718096" tick={{ fontSize: 10 }} />
             <ZAxis range={[30, 30]} />
             <Tooltip contentStyle={{ background: "#1a1f2e", border: "1px solid #4a5568" }} />

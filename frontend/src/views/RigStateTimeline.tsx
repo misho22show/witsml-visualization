@@ -73,7 +73,7 @@ export default function RigStateTimeline({ history }: Props) {
         <ResponsiveContainer width="100%" height={250}>
           <BarChart data={timelineData} barSize={4}>
             <CartesianGrid strokeDasharray="3 3" stroke="#2d3748" />
-            <XAxis dataKey="time" stroke="#718096" tick={{ fontSize: 10 }} />
+            <XAxis dataKey="time" stroke="#718096" tick={{ fontSize: 10 }} label={{ value: "Time (s)", position: "insideBottomRight", offset: -4, style: { fontSize: 10, fill: "#718096" } }} />
             <YAxis
               domain={[0, 8]}
               ticks={Object.values(STATE_INDEX)}
